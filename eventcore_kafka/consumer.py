@@ -17,10 +17,17 @@ class KafkaConsumer(Consumer):
     """
 
     def __init__(self, servers, group_id, topics):
+        # Parse the servers to ensure it's a comma-separated string.
+        if isinstance(servers, list):
+            servers = ','.join(servers)
         self.kafka_consumer = kafka.Consumer({
             'bootstrap.servers': servers,
             'group.id': group_id
         })
+        # Parse the topics to ensure it's a list.
+        if isinstance(topics, str):
+            topics = topics.split(',')
+
         self.kafka_consumer.subscribe(topics)
 
     def consume(self):
@@ -28,6 +35,13 @@ class KafkaConsumer(Consumer):
             message = self.kafka_consumer.poll(1.0)
             if not message:
                 continue
+            if message.error():
+                # PARTITION_EOF error can be ignored.
+                if message.error().code() == kafka.KafkaError._PARTITION_EOF:
+                    continue
+                else:
+                    raise kafka.KafkaException(message.error())
+
             try:
                 message_body = json.loads(message.value())
             except TypeError:
@@ -35,6 +49,11 @@ class KafkaConsumer(Consumer):
             except:
                 log.error('@KafkaConsumer.consume Exception:',
                           exc_info=True)
+            try:
+                subject = message.key().decode('utf-8')
+            except AttributeError:
+                subject = message.key()
+
             self.process_event(name=message_body.get('event'),
-                               subject=message.key(),
+                               subject=subject,
                                data=message_body.get('data'))
