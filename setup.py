@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='eventcore-kafka',
-    version='0.3.1',
+    version='0.3.2',
     description='Produce and consume events with Kafka.',
     author='Maikel van den Boogerd',
     author_email='maikelboogerd@gmail.com',
