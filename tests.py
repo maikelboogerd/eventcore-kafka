@@ -20,7 +20,8 @@ def mock_message() -> Message:
     return Message(
         key=Mock(return_value=b"MyKey"),
         value=Mock(return_value=b'{"data": []}'),
-        error=Mock(return_value=False))
+        error=Mock(return_value=False)
+    )
 
 
 def mock_handler(name, subject, data):
@@ -31,7 +32,6 @@ class KafkaConsumerTest(unittest.TestCase):
     def test_auto_commit_enabled(self):
         """When auto_commit is enabled on the server, it shouldn't commit."""
         settings = consumer_settings()
-        settings["server_auto_commit"] = True
         consumer = KafkaConsumer(**settings)
         kafka_consumer = Mock()
         kafka_consumer.poll = Mock(return_value=mock_message())
