@@ -1,6 +1,6 @@
 import unittest
 from collections import namedtuple
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from confluent_kafka.cimpl import KafkaException
 
